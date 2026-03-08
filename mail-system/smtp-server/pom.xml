@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.emp</groupId>
+        <artifactId>mail-system</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>smtp-server</artifactId>
+    <packaging>jar</packaging>
+    <!-- <n>SMTP Server (Étape 1 + GUI Étape 3)</n> -->
+
+    <dependencies>
+        <dependency>
+            <groupId>org.emp</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>smtp.SMTPServer</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>smtp-server</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

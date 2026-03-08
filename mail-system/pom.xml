@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+            http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+        <modelVersion>4.0.0</modelVersion>
+
+        <!-- ══════════════════════════════════════════
+            Parent Project Coordinates
+        ══════════════════════════════════════════ -->
+        <groupId>org.emp</groupId>
+        <artifactId>mail-system</artifactId>
+        <version>1.0.0</version>
+        <packaging>pom</packaging>
+        <name>Mail System - Distributed Messaging</name>
+
+        <!-- ══════════════════════════════════════════ 
+            Modules
+        ══════════════════════════════════════════ -->
+        <modules>
+            <module>common</module>
+            <module>auth-server</module>
+            <module>smtp-server</module>
+            <module>pop3-server</module>
+            <module>imap-server</module>
+            <module>web-interface</module>
+            <module>mail-clients</module>
+        </modules>
+
+        <!-- ══════════════════════════════════════════
+            Global Properties
+        ══════════════════════════════════════════ -->
+        <properties>
+            <java.version>21</java.version>
+            <maven.compiler.source>21</maven.compiler.source>
+            <maven.compiler.target>21</maven.compiler.target>
+            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+            <!-- Dependency versions -->
+            <mysql.version>8.0.33</mysql.version>
+            <jakarta.mail.version>2.0.1</jakarta.mail.version>
+            <gson.version>2.10.1</gson.version>
+            <junit.version>5.10.0</junit.version>
+            <slf4j.version>2.0.9</slf4j.version>
+            <logback.version>1.4.11</logback.version>
+        </properties>
+
+        <!-- ══════════════════════════════════════════
+            Dependency Management (versions centralisées)
+        ══════════════════════════════════════════ -->
+        <dependencyManagement>
+            <dependencies>
+
+                <!-- Internal modules -->
+                <dependency>
+                    <groupId>org.emp</groupId>
+                    <artifactId>common</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+
+                <!-- MySQL JDBC Driver -->
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>${mysql.version}</version>
+                </dependency>
+
+                <!-- Jakarta Mail API (JavaMail) — Étape 7 -->
+                <dependency>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>jakarta.mail</artifactId>
+                    <version>${jakarta.mail.version}</version>
+                </dependency>
+
+                <!-- Gson — JSON storage for RMI auth (Étape 4) -->
+                <dependency>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                    <version>${gson.version}</version>
+                </dependency>
+
+                <!-- Logging -->
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                    <version>${slf4j.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                    <version>${logback.version}</version>
+                </dependency>
+
+                <!-- JUnit 5 — Tests -->
+                <dependency>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                    <version>${junit.version}</version>
+                    <scope>test</scope>
+                </dependency>
+
+            </dependencies>
+        </dependencyManagement>
+
+        <!-- ══════════════════════════════════════════
+            Common dependencies for ALL modules
+        ══════════════════════════════════════════ -->
+        <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+
+        <!-- ══════════════════════════════════════════
+            Build Plugins
+        ══════════════════════════════════════════ -->
+        <build>
+            <pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.1.2</version>
+                    </plugin>
+                    <!-- For executable JARs -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.3.0</version>
+                    </plugin>
+                    <!-- For WAR packaging (web-interface) -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>3.4.0</version>
+                    </plugin>
+                </plugins>
+            </pluginManagement>
+        </build>
+
+    </project>

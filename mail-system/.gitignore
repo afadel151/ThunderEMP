@@ -1,0 +1,22 @@
+# Maven
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.eclipse/
+.settings/
+.project
+.classpath
+
+# Logs
+*.log
+logs/
+
+# DB credentials (never commit)
+**/db.properties
+
+# OS
+.DS_Store
+Thumbs.db
