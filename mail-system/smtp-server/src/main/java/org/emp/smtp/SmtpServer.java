@@ -11,21 +11,21 @@ import java.util.logging.Logger;
  * SMTP Server — RFC 5321 compliant.
  *
  * Changes from original:
- *  - Renamed startServer() → start() so it can be called as a standard
- *    lifecycle method from the GUI (Étape 3) and other modules.
- *  - Uses a thread pool (ExecutorService) instead of raw Thread.start(),
- *    which is safer and easier to shut down cleanly.
- *  - volatile running flag + close() method allow the GUI to stop the server.
- *  - Domain name is configurable (needed for 220 / 221 greetings per RFC 5321
- *    §4.3.1 which requires the FQDN as the first word after the reply code).
+ * - Renamed startServer() → start() so it can be called as a standard
+ * lifecycle method from the GUI (Étape 3) and other modules.
+ * - Uses a thread pool (ExecutorService) instead of raw Thread.start(),
+ * which is safer and easier to shut down cleanly.
+ * - volatile running flag + close() method allow the GUI to stop the server.
+ * - Domain name is configurable (needed for 220 / 221 greetings per RFC 5321
+ * §4.3.1 which requires the FQDN as the first word after the reply code).
  */
 public class SmtpServer {
 
     private static final Logger log = Logger.getLogger(SmtpServer.class.getName());
 
-    public  static final int    DEFAULT_PORT   = 25;
-    private static final String SERVER_DOMAIN  = "smtp.eoc.dz";
-    private static final int    THREAD_POOL    = 50;
+    public static final int DEFAULT_PORT = 2525;
+    private static final String SERVER_DOMAIN = "smtp.emp.org";
+    private static final int THREAD_POOL = 50;
 
     private final int port;
     private volatile boolean running = false;
@@ -49,7 +49,8 @@ public class SmtpServer {
 
     /** Called by GUI "Start" button or by main(). */
     public void start() {
-        if (running) return;
+        if (running)
+            return;
         pool = Executors.newFixedThreadPool(THREAD_POOL);
         try {
             serverSocket = new ServerSocket(port);
@@ -64,7 +65,8 @@ public class SmtpServer {
                         log("Connection from " + client.getInetAddress());
                         pool.execute(new SmtpSession(client, SERVER_DOMAIN, logListener));
                     } catch (IOException e) {
-                        if (running) log("Accept error: " + e.getMessage());
+                        if (running)
+                            log("Accept error: " + e.getMessage());
                     }
                 }
             }, "smtp-accept");
@@ -80,22 +82,32 @@ public class SmtpServer {
     public void stop() {
         running = false;
         try {
-            if (serverSocket != null) serverSocket.close();
-        } catch (IOException ignored) {}
-        if (pool != null) pool.shutdown();
+            if (serverSocket != null)
+                serverSocket.close();
+        } catch (IOException ignored) {
+        }
+        if (pool != null)
+            pool.shutdown();
         log("SMTP Server stopped.");
     }
 
-    public boolean isRunning() { return running; }
+    public boolean isRunning() {
+        return running;
+    }
 
     private void log(String msg) {
         log.info(msg);
-        if (logListener != null) logListener.onServerLog("SERVER", msg);
+        if (logListener != null)
+            logListener.onServerLog("SERVER", msg);
     }
 
     // ── Entry point ───────────────────────────────────────────────────────────
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         int port = (args.length > 0) ? Integer.parseInt(args[0]) : DEFAULT_PORT;
-        new SmtpServer(port).start();
-    }
+        SmtpServer server = new SmtpServer(port);
+        server.start();
+
+        // keep JVM alive
+        Thread.currentThread().join();
+    }   
 }

@@ -1,0 +1,19 @@
+From: akram@client.com
+To: bob@server.com
+Date: 2026-03-09T02:05:11.992859409
+Subject: Hi bob
+
+Received: from [127.0.0.1] (127.0.0.1) by smtp.emp.org with ESMTP ; Mon, 9 Mar 2026 02:05:11 +0100
+Message-ID: <a204cc74-21cd-4b62-91b8-180d441fb016@client.com>
+Date: Mon, 9 Mar 2026 02:05:11 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: bob@server.com
+From: Fadel <akram@client.com>
+Subject: Hi bob
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+data here
+

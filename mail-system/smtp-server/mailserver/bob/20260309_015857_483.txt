@@ -1,0 +1,7 @@
+From: alice@server.com
+To: bob@client.com
+Date: 2026-03-09T01:58:57.483901973
+Subject: 
+
+Received: from localhost (127.0.0.1) by smtp.emp.org with ESMTP ; Mon, 9 Mar 2026 01:58:57 +0100
+hello kirakom
