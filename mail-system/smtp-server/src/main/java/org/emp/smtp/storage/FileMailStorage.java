@@ -1,5 +1,6 @@
 package org.emp.smtp.storage;
 
+import org.emp.common.MailStorageConfig;
 import org.emp.common.Message;
 
 import java.io.*;   
@@ -18,7 +19,7 @@ public class FileMailStorage implements MailStorage {
 
     private static final Logger log = Logger.getLogger(FileMailStorage.class.getName());
 
-    private static final String BASE_DIR = "mailserver";
+    private static final String BASE_DIR = MailStorageConfig.getBaseDir();
     private static final DateTimeFormatter TS_FMT =
             DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
@@ -29,10 +30,12 @@ public class FileMailStorage implements MailStorage {
         // Recipients are stored as comma-separated string in Message
         String[] recipients = message.getRecipient().split(",");
 
+
         for (String recipient : recipients) {
+            System.out.println("recipient : " + recipient);
             recipient = recipient.trim();
             if (recipient.isEmpty()) continue;
-
+            
             String username = recipient.contains("@")
                     ? recipient.split("@")[0]
                     : recipient;

@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import org.emp.common.MailStorageConfig;
+
 /**
  * Simple file-based authenticator for the IMAP server (Étapes 1–3).
  *
@@ -17,10 +19,12 @@ import java.util.logging.Logger;
 public class FileAuthenticator implements ImapAuthenticator {
 
     private static final Logger log = Logger.getLogger(FileAuthenticator.class.getName());
-    private static final String USERS_FILE = "mailserver/users.properties";
+    private static final String USERS_FILE =
+            MailStorageConfig.getBaseDir() + File.separator + "users.properties";
 
     @Override
     public boolean authenticate(String username, String password) {
+        System.out.println(USERS_FILE);
         File f = new File(USERS_FILE);
         if (!f.exists()) {
             log.warning("users.properties not found — falling back to directory check");

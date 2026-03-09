@@ -917,6 +917,28 @@ public class ImapSession implements Runnable {
                     fetchData.append(responseItem)
                             .append(" {").append(content.length()).append("}\r\n")
                             .append(content).append(" ");
+
+                // RFC 822 legacy aliases — Thunderbird and many clients send these
+                // RFC 9051 § 6.4.5: RFC822.HEADER ≡ BODY.PEEK[HEADER] (no \Seen side-effect)
+                //                        RFC822.TEXT   ≡ BODY[TEXT]         (sets \Seen)
+                //                        RFC822        ≡ BODY[]             (sets \Seen)
+                } else if (itemUpper.equals("RFC822.HEADER")) {
+                    String content = fetchBodySection(msg, "HEADER");
+                    fetchData.append("RFC822.HEADER {").append(content.length()).append("}\r\n")
+                             .append(content).append(" ");
+                    // PEEK-equivalent: does NOT set \Seen
+
+                } else if (itemUpper.equals("RFC822.TEXT")) {
+                    String content = fetchBodySection(msg, "TEXT");
+                    fetchData.append("RFC822.TEXT {").append(content.length()).append("}\r\n")
+                             .append(content).append(" ");
+                    if (!msg.hasFlag("\\Seen") && !readOnly) setSeen = true;
+
+                } else if (itemUpper.equals("RFC822")) {
+                    String content = fetchBodySection(msg, "");
+                    fetchData.append("RFC822 {").append(content.length()).append("}\r\n")
+                             .append(content).append(" ");
+                    if (!msg.hasFlag("\\Seen") && !readOnly) setSeen = true;
                 }
             }
 

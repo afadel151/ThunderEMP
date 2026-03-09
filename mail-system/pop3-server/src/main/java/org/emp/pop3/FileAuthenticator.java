@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import org.emp.common.MailStorageConfig;
+
 /**
  * Simple file-based authenticator for Étapes 1–3.
  *
@@ -17,7 +19,8 @@ import java.util.logging.Logger;
 public class FileAuthenticator implements Pop3Authenticator {
 
     private static final Logger log = Logger.getLogger(FileAuthenticator.class.getName());
-    private static final String USERS_FILE = "mailserver/users.properties";
+    private static final String USERS_FILE =
+            MailStorageConfig.getBaseDir() + File.separator + "users.properties";
 
     @Override
     public boolean authenticate(String username, String password) {

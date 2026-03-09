@@ -1,0 +1,19 @@
+From: akram@client.com
+To: fadel@client.com
+Date: 2026-03-09T13:35:43.323058620
+Subject: new subject
+
+Received: from [127.0.0.1] (127.0.0.1) by smtp.emp.org with ESMTP ; Mon, 9 Mar 2026 13:35:43 +0100
+Message-ID: <19782259-9447-45e4-a6da-511fed5844e4@client.com>
+Date: Mon, 9 Mar 2026 13:35:43 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: fadel@client.com
+From: Akram <akram@client.com>
+Subject: new subject
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+12345679-
+

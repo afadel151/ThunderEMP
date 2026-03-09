@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.emp.common.MailStorageConfig;
+
 /**
  * File-based mail storage for Étapes 1–4.
  * Reads emails from mailserver/<username>/*.txt (written by SmtpServer).
@@ -15,7 +17,7 @@ import java.util.logging.Logger;
 public class FileMailStorage implements Pop3MailStorage {
 
     private static final Logger log = Logger.getLogger(FileMailStorage.class.getName());
-    private static final String BASE_DIR = "mailserver";
+    private static final String BASE_DIR = MailStorageConfig.getBaseDir();
 
     @Override
     public List<Pop3Mail> loadMessages(String username) {

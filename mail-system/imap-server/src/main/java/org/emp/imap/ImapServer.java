@@ -11,31 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-/**
- * IMAP4rev2 Server — RFC 9051 compliant.
- *
- * ─────────────────────────────────────────────────────────────────────
- * Lifecycle
- * ─────────────────────────────────────────────────────────────────────
- * ImapServer server = new ImapServer(143);
- * server.start(); // called by GUI "Start" button or main()
- * server.stop(); // called by GUI "Stop" button
- *
- * ─────────────────────────────────────────────────────────────────────
- * GUI hook — Étape 3
- * ─────────────────────────────────────────────────────────────────────
- * server.setLogListener((actor, msg) -> textArea.append(...));
- *
- * ─────────────────────────────────────────────────────────────────────
- * Auth hook — Étape 4 (RMI)
- * ─────────────────────────────────────────────────────────────────────
- * server.setAuthenticator(new RMIAuthenticator(rmiStub));
- *
- * ─────────────────────────────────────────────────────────────────────
- * Storage hook — Étape 5 (MySQL)
- * ─────────────────────────────────────────────────────────────────────
- * server.setMailStorage(new DBMailStorage());
- */
+ 
 public class ImapServer {
 
     private static final Logger log = Logger.getLogger(ImapServer.class.getName());
@@ -49,7 +25,7 @@ public class ImapServer {
     private ServerSocket serverSocket;
     private ExecutorService pool;
 
-    // ── Injectable hooks ──────────────────────────────────────────────────────
+    // ── Injectable hooks 
     private ImapLogListener logListener;
     private ImapAuthenticator authenticator;
     private ImapMailStorage mailStorage;
@@ -74,7 +50,7 @@ public class ImapServer {
         this.mailStorage = s;
     }
 
-    // ── Start / Stop ──────────────────────────────────────────────────────────
+    // ── Start / Stop ────
 
     public void start() {
         if (running)
