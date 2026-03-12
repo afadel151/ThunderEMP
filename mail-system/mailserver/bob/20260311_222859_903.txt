@@ -1,0 +1,8 @@
+From: akram@client.com
+To: bob@server.com
+Date: 2026-03-11T22:28:59.903290401
+Subject: 
+
+Received: from akram@client.com (127.0.0.1) by smtp.emp.org with ESMTP ; Wed, 11 Mar 2026 22:28:59 +0100
+Subject : email
+How are you

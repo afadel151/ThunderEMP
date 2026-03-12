@@ -1,0 +1,7 @@
+From: akram@client.com
+To: fadel@client.com
+Date: 2026-03-12T01:26:18.619396400
+Subject: 
+
+Received: from client.com (127.0.0.1) by smtp.emp.org with ESMTP ; Thu, 12 Mar 2026 01:26:18 +0100
+email email
