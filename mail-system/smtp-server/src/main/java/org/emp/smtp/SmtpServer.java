@@ -34,7 +34,7 @@ public class SmtpServer {
 
     // ── Observer hook for GUI (Étape 3) ──────────────────────────────────────
     private SmtpLogListener logListener;
-
+    private SmtpAuthenticator authenticator; 
     public SmtpServer() {
         this(DEFAULT_PORT);
     }
@@ -45,6 +45,9 @@ public class SmtpServer {
 
     public void setLogListener(SmtpLogListener listener) {
         this.logListener = listener;
+    }
+    public void setAuthenticator(SmtpAuthenticator authenticator) {
+        this.authenticator = authenticator;
     }
 
     /** Called by GUI "Start" button or by main(). */

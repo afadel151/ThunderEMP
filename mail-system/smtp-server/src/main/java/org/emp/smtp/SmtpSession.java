@@ -117,7 +117,7 @@ public class SmtpSession implements Runnable {
     private final String serverDomain;
     private final SmtpLogListener logListener;
     private final MailStorage storage;
-
+     private final SmtpAuthenticator authenticator;
     private BufferedReader in;
     private PrintWriter out;
 
@@ -130,19 +130,21 @@ public class SmtpSession implements Runnable {
     // ── Constructors ──────────────────────────────────────────────────────────
 
     public SmtpSession(Socket socket, String serverDomain, SmtpLogListener logListener) {
-        this(socket, serverDomain, logListener, new FileMailStorage());
+        this(socket, serverDomain, logListener, new FileMailStorage(), null);
     }
 
     /**
      * Full constructor — used in Étape 5 when passing a DBMailStorage.
      */
-    public SmtpSession(Socket socket, String serverDomain,
-            SmtpLogListener logListener, MailStorage storage) {
-        this.socket = socket;
-        this.serverDomain = serverDomain;
-        this.logListener = logListener;
-        this.storage = storage;
-        this.state = SmtpState.CONNECTED;
+     public SmtpSession(Socket socket, String serverDomain,
+                       SmtpLogListener logListener, MailStorage storage,
+                       SmtpAuthenticator authenticator) {
+        this.socket         = socket;
+        this.serverDomain   = serverDomain;
+        this.logListener    = logListener;
+        this.storage        = storage;
+        this.authenticator  = authenticator;
+        this.state          = SmtpState.CONNECTED;
     }
 
     // ── Main loop ─────────────────────────────────────────────────────────────
@@ -320,7 +322,11 @@ public class SmtpSession implements Runnable {
             sendReply("553 Requested action not taken: mailbox name not allowed");
             return;
         }
-
+        // Étape 4 — verify sender exists in RMI auth server (if authenticator is set)
+        if (authenticator != null && !authenticator.isValidSender(email)) {
+            sendReply("550 5.1.1 <" + email + ">: Sender address rejected: unknown user");
+            return;
+        }
         sender = email;
         state = SmtpState.MAIL_FROM_SET;
         sendReply("250 OK");
