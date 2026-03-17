@@ -1,0 +1,14 @@
+[
+  {
+    "username": "fadel",
+    "passwordHash": "ba3d60a6b03d3bd89eb2809f35b2a51febb306ae130e6d4ca7a37c3011c9517b",
+    "email": "fadel@gmail,com",
+    "active": true
+  },
+  {
+    "username": "fouzi",
+    "passwordHash": "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+    "email": "fouzi@client.com",
+    "active": true
+  }
+]

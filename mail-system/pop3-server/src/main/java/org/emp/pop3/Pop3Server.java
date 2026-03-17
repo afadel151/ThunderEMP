@@ -67,7 +67,7 @@ public class Pop3Server {
             return;
         // Defaults if no hooks injected
         if (authenticator == null)
-            authenticator = new FileAuthenticator();
+            authenticator = new Pop3RMIAuthenticator();
         if (mailStorage == null)
             mailStorage = new FileMailStorage();
 
