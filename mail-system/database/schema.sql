@@ -1,37 +1,60 @@
--- ══════════════════════════════════════════════════════
--- Mail System Database Schema (Étape 5)
--- ══════════════════════════════════════════════════════
 
-CREATE DATABASE IF NOT EXISTS mailsystem
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE mailsystem;
-
--- ── Table: users ──────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
-    id            INT          AUTO_INCREMENT PRIMARY KEY,
-    username      VARCHAR(50)  NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,          -- hashed with BCrypt
-    email         VARCHAR(100) NOT NULL UNIQUE,
-    created_at    DATETIME     DEFAULT NOW(),
-    active        BOOLEAN      DEFAULT TRUE
+    id            SERIAL        PRIMARY KEY,
+    username      VARCHAR(50)   NOT NULL UNIQUE,
+    password_hash VARCHAR(255)  NOT NULL,
+    email         VARCHAR(100)  NOT NULL UNIQUE,
+    created_at    TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    active        BOOLEAN       DEFAULT TRUE
 );
 
--- ── Table: emails ─────────────────────────────────────
 CREATE TABLE IF NOT EXISTS emails (
-    id          INT           AUTO_INCREMENT PRIMARY KEY,
-    sender      VARCHAR(100)  NOT NULL,
-    recipient   VARCHAR(100)  NOT NULL,
-    subject     VARCHAR(255)  DEFAULT '',
+    id          SERIAL          PRIMARY KEY,
+    sender      VARCHAR(100)    NOT NULL,
+    recipient   VARCHAR(100)    NOT NULL,
+    subject     VARCHAR(255)    DEFAULT '',
     body        TEXT,
-    sent_at     DATETIME      DEFAULT NOW(),
-    is_read     BOOLEAN       DEFAULT FALSE,
-    is_deleted  BOOLEAN       DEFAULT FALSE,
-    folder      VARCHAR(50)   DEFAULT 'INBOX'     -- for IMAP folders
+    sent_at     TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    is_read     BOOLEAN         DEFAULT FALSE,
+    is_deleted  BOOLEAN         DEFAULT FALSE,
+    folder      VARCHAR(50)     DEFAULT 'INBOX'
 );
 
--- ── Indexes ───────────────────────────────────────────
-CREATE INDEX idx_emails_recipient ON emails(recipient);
-CREATE INDEX idx_emails_sender    ON emails(sender);
-CREATE INDEX idx_emails_folder    ON emails(folder);
+
+CREATE INDEX IF NOT EXISTS idx_emails_recipient ON emails(recipient);
+CREATE INDEX IF NOT EXISTS idx_emails_sender    ON emails(sender);
+CREATE INDEX IF NOT EXISTS idx_emails_folder    ON emails(folder);
+
+
+CREATE TABLE IF NOT EXISTS mailboxes (
+    id            SERIAL          PRIMARY KEY,
+    user_id       INTEGER         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name          VARCHAR(100)    NOT NULL,
+    uid_validity  BIGINT          DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::BIGINT,
+    uid_next      BIGINT          DEFAULT 1,
+    UNIQUE(user_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id            SERIAL          PRIMARY KEY,
+    user_id       INTEGER         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    mailbox_name  VARCHAR(100)    NOT NULL,
+    UNIQUE(user_id, mailbox_name)
+);
+
+CREATE TABLE IF NOT EXISTS imap_emails (
+    id            SERIAL          PRIMARY KEY,
+    mailbox_id    INTEGER         NOT NULL REFERENCES mailboxes(id) ON DELETE CASCADE,
+    uid           BIGINT          NOT NULL,
+    sender        VARCHAR(100),
+    recipient     VARCHAR(100),
+    subject       VARCHAR(255),
+    body          TEXT,
+    flags         VARCHAR(255)    DEFAULT '',
+    internal_date BIGINT          DEFAULT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::BIGINT,
+    size          INTEGER         DEFAULT 0,
+    UNIQUE(mailbox_id, uid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_imap_emails_mailbox ON imap_emails(mailbox_id);
+CREATE INDEX IF NOT EXISTS idx_imap_emails_uid ON imap_emails(uid);

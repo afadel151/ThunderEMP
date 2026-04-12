@@ -1,65 +1,76 @@
-// package org.emp.pop3;
+package org.emp.pop3;
 
+import org.emp.common.EmailRepository;
 
-// import java.sql.*;
-// import java.util.ArrayList;
-// import java.util.List;
-// import java.util.logging.Logger;
-// /**
-//  * MySQL-backed mail storage for Étape 5.
-//  *
-//  * Uses stored procedures defined in database/procedures.sql:
-//  *   fetch_emails(recipient)  → ResultSet of messages
-//  *   delete_email(email_id)   → soft-delete
-//  *
-//  * Activate by: pop3Server.setMailStorage(new DBMailStorage());
-//  */
-// public class DBMailStorage implements Pop3MailStorage {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
-//     private static final Logger log = Logger.getLogger(DBMailStorage.class.getName());
+/**
+ * PostgreSQL-backed mail storage for POP3 (Étape 5).
+ *
+ * Uses EmailRepository which calls PostgreSQL functions:
+ *   fetch_emails(recipient)  → ResultSet of messages
+ *   delete_email(email_id)   → soft-delete
+ *
+ * Activate by: pop3Server.setMailStorage(new DBMailStorage());
+ */
+public class DBMailStorage implements Pop3MailStorage {
 
-//     @Override
-//     public List<Pop3Mail> loadMessages(String username) {
-//         List<Pop3Mail> result = new ArrayList<>();
-//         try (Connection conn = DBConnection.getConnection();
-//              CallableStatement cs = conn.prepareCall("{CALL fetch_emails(?)}")) {
+    private static final Logger log = Logger.getLogger(DBMailStorage.class.getName());
+    private final EmailRepository emailRepo;
 
-//             cs.setString(1, username);
-//             ResultSet rs = cs.executeQuery();
-//             while (rs.next()) {
-//                 String id   = String.valueOf(rs.getInt("id"));
-//                 String body = buildBody(rs);
-//                 result.add(new Pop3Mail(id, body));
-//             }
-//         } catch (SQLException e) {
-//             log.severe("DB error loading messages for " + username + ": " + e.getMessage());
-//         }
-//         return result;
-//     }
+    public DBMailStorage() {
+        this.emailRepo = new EmailRepository();
+    }
 
-//     @Override
-//     public boolean delete(String username, Pop3Mail mail) {
-//         try (Connection conn = DBConnection.getConnection();
-//              CallableStatement cs = conn.prepareCall("{CALL delete_email(?)}")) {
+    @Override
+    public List<Pop3Mail> loadMessages(String username) {
+        List<Pop3Mail> result = new ArrayList<>();
+        List<EmailRepository.EmailDTO> emails = emailRepo.fetchEmails(username);
 
-//             cs.setInt(1, Integer.parseInt(mail.getUid()));
-//             cs.execute();
-//             return true;
-//         } catch (SQLException e) {
-//             log.severe("DB error deleting message " + mail.getUid() + ": " + e.getMessage());
-//             return false;
-//         }
-//     }
+        for (EmailRepository.EmailDTO email : emails) {
+            String body = buildBody(email);
+            result.add(new Pop3Mail(String.valueOf(email.getId()), body));
+        }
 
-//     /** Build a RFC 5322-style message body from a DB row. */
-//     private String buildBody(ResultSet rs) throws SQLException {
-//         StringBuilder sb = new StringBuilder();
-//         sb.append("From: ").append(rs.getString("sender")).append("\r\n");
-//         sb.append("To: ").append(rs.getString("recipient")).append("\r\n");
-//         sb.append("Subject: ").append(rs.getString("subject")).append("\r\n");
-//         sb.append("Date: ").append(rs.getTimestamp("sent_at")).append("\r\n");
-//         sb.append("\r\n");
-//         sb.append(rs.getString("body"));
-//         return sb.toString();
-//     }
-// }
+        log.info("Loaded " + result.size() + " messages for " + username);
+        return result;
+    }
+
+    @Override
+    public boolean delete(String username, Pop3Mail mail) {
+        try {
+            int emailId = Integer.parseInt(mail.getUid());
+            boolean success = emailRepo.deleteEmail(emailId);
+            if (success) {
+                log.info("Soft-deleted email id=" + emailId + " for " + username);
+            } else {
+                log.warning("Failed to delete email id=" + emailId);
+            }
+            return success;
+        } catch (NumberFormatException e) {
+            log.severe("Invalid email ID: " + mail.getUid());
+            return false;
+        }
+    }
+
+    /** Build a RFC 5322-style message body from an EmailDTO. */
+    private String buildBody(EmailRepository.EmailDTO email) {
+        // Fetch full email with body
+        EmailRepository.EmailDTO fullEmail = emailRepo.getEmail(email.getId());
+        if (fullEmail == null) {
+            log.warning("Could not load full email for id=" + email.getId());
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("From: ").append(fullEmail.getSender()).append("\r\n");
+        sb.append("To: ").append(fullEmail.getRecipient()).append("\r\n");
+        sb.append("Subject: ").append(fullEmail.getSubject()).append("\r\n");
+        sb.append("Date: ").append(fullEmail.getSentAt()).append("\r\n");
+        sb.append("\r\n");
+        sb.append(fullEmail.getBody() != null ? fullEmail.getBody() : "");
+        return sb.toString();
+    }
+}

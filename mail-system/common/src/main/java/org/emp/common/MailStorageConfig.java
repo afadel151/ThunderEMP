@@ -5,105 +5,38 @@ import java.nio.file.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-/**
- * Single source of truth for the shared mail storage directory.
- *
- * ══════════════════════════════════════════════════════════════════════
- * WHY THIS EXISTS
- * ══════════════════════════════════════════════════════════════════════
- * Each Maven module (smtp-server, pop3-server, imap-server) runs from its
- * own working directory when launched individually:
- *
- *   smtp-server/mailserver/alice/  ← SMTP writes here
- *   pop3-server/mailserver/alice/  ← POP3 reads here  ← WRONG, empty!
- *   imap-server/mailserver/alice/  ← IMAP reads here  ← WRONG, empty!
- *
- * By reading a single absolute path from mail.properties, all three
- * servers read and write the SAME directory regardless of where they
- * are launched from.
- *
- * ══════════════════════════════════════════════════════════════════════
- * CONFIGURATION — mail.properties
- * ══════════════════════════════════════════════════════════════════════
- * The file is resolved in this priority order:
- *
- *   1. System property:   -Dmail.properties=/path/to/mail.properties
- *   2. Environment var:   MAIL_PROPERTIES=/path/to/mail.properties
- *   3. Working directory: ./mail.properties
- *   4. Project root:      ../../mail.properties  (when run from a module)
- *   5. Built-in default:  <project-root>/mailserver/  (auto-detected)
- *
- * Minimal mail.properties:
- *   mail.storage.dir=/home/user/mail-system/mailserver
- *
- * ══════════════════════════════════════════════════════════════════════
- * USAGE IN STORAGE CLASSES
- * ══════════════════════════════════════════════════════════════════════
- *   // Instead of:
- *   private static final String BASE = "mailserver";
- *
- *   // Use:
- *   private static final String BASE = MailStorageConfig.getBaseDir();
- *
- * ══════════════════════════════════════════════════════════════════════
- * DEPLOYMENT SCENARIOS
- * ══════════════════════════════════════════════════════════════════════
- * Scenario A — all servers in one JVM (tests, demo):
- *   mail.storage.dir=/home/user/mail-system/mailserver
- *
- * Scenario B — each server run from its module directory:
- *   cd smtp-server && java -Dmail.properties=../mail.properties -jar ...
- *
- * Scenario C — Étape 8, NGINX load balancer, shared NFS mount:
- *   mail.storage.dir=/mnt/shared/mailserver
- */
 public class MailStorageConfig {
 
     private static final Logger log = Logger.getLogger(MailStorageConfig.class.getName());
 
-    /** Cached resolved base directory — computed once at class load time. */
     private static final String BASE_DIR = "/home/fadel/GitHub/ThunderEMP/mail-system/mailserver";
 
-    /**
-     * Returns the absolute path to the shared mail storage root directory.
-     * The directory is guaranteed to exist after this call.
-     */
     public static String getBaseDir() {
 
         return BASE_DIR;
     }
 
-    /**
-     * Convenience: returns File(getBaseDir() + "/" + username).
-     * Creates the directory if it does not exist.
-     */
     public static File getUserDir(String username) {
         File dir = new File(BASE_DIR, username);
         if (!dir.exists()) dir.mkdirs();
         return dir;
     }
 
-    /**
-     * Convenience: returns File(getUserDir(username) + "/" + subDir).
-     * Creates the directory if it does not exist.
-     */
     public static File getSubDir(String username, String subDir) {
         File dir = new File(getUserDir(username), subDir);
         if (!dir.exists()) dir.mkdirs();
         return dir;
     }
 
-    // ── Resolution logic ──────────────────────────────────────────────────────
-
     private static String resolve() {
-        // 1. System property overrides everything
+
         String sysProp = System.getProperty("mail.properties");
         if (sysProp != null) {
             String dir = loadFromFile(new File(sysProp));
             if (dir != null) return ensureExists(dir);
         }
 
-        // 2. Environment variable
+
         String envProp = System.getenv("MAIL_PROPERTIES");
         if (envProp != null) {
             String dir = loadFromFile(new File(envProp));

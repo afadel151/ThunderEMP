@@ -17,12 +17,18 @@
     <!-- <n>Common - Shared Models and Utilities</n> -->
 
     <dependencies>
-        <!-- MySQL JDBC -->
+        <!-- PostgreSQL JDBC -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.10</version>
         </dependency>
-        <!-- Gson for JSON file storage (Étape 4) -->
+        <!-- HikariCP Connection Pool -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+        <!-- Gson for JSON utilities -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>

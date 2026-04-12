@@ -7,22 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-/**
- * POP3 Server — RFC 1939 compliant.
- *
- * Lifecycle:
- * start() → accept loop (daemon thread) → one Pop3Session per client
- * stop() → closes ServerSocket, shuts down thread pool
- *
- * GUI hook (Étape 3):
- * server.setLogListener((actor, msg) -> textArea.append(...));
- *
- * Auth hook (Étape 4 — RMI):
- * server.setAuthenticator(rmiAuthenticatorImpl);
- *
- * Storage hook (Étape 5 — MySQL):
- * server.setMailStorage(new DBMailStorage());
- */
 public class Pop3Server {
 
     private static final Logger log = Logger.getLogger(Pop3Server.class.getName());
@@ -60,12 +44,9 @@ public class Pop3Server {
     public void setMailStorage(Pop3MailStorage s) {
         this.mailStorage = s;
     }
-
-    /** Called by GUI "Start" or main(). */
     public void start() {
         if (running)
             return;
-        // Defaults if no hooks injected
         if (authenticator == null)
             authenticator = new Pop3RMIAuthenticator();
         if (mailStorage == null)

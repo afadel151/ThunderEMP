@@ -1,6 +1,6 @@
 package org.emp.pop3;
 
-import org.emp.auth.RMIAuthenticator;
+import org.emp.common.RMIAuthenticator;
 
 /**
  * Bridges the RMI auth server to the POP3 Pop3Authenticator interface (Étape 4).

@@ -23,11 +23,13 @@
         </dependency>
         <dependency>
             <groupId>org.emp</groupId>
-            <artifactId>auth-server</artifactId>
+            <artifactId>auth</artifactId>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+
         </dependency>
     </dependencies>
 

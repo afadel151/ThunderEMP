@@ -1,79 +1,168 @@
 -- ══════════════════════════════════════════════════════
--- Stored Procedures (Étape 5)
+-- PostgreSQL Functions (Étape 5)
 -- ══════════════════════════════════════════════════════
 
-USE mailsystem;
-
-DELIMITER $$
-
 -- ── 1. Authenticate user ──────────────────────────────
-CREATE PROCEDURE authenticate_user(
-    IN  p_username VARCHAR(50),
-    IN  p_password_hash VARCHAR(255),
-    OUT p_result   BOOLEAN
-)
+CREATE OR REPLACE FUNCTION authenticate_user(
+    p_username VARCHAR(50),
+    p_password_hash VARCHAR(255)
+) RETURNS BOOLEAN AS $$
 BEGIN
-    SELECT COUNT(*) > 0 INTO p_result
-    FROM users
-    WHERE username = p_username
-      AND password_hash = p_password_hash
-      AND active = TRUE;
-END$$
+    RETURN EXISTS (
+        SELECT 1 FROM users
+        WHERE username = p_username
+          AND password_hash = p_password_hash
+          AND active = TRUE
+    );
+END;
+$$ LANGUAGE plpgsql;
 
 -- ── 2. Store email ────────────────────────────────────
-CREATE PROCEDURE store_email(
-    IN p_sender    VARCHAR(100),
-    IN p_recipient VARCHAR(100),
-    IN p_subject   VARCHAR(255),
-    IN p_body      TEXT
-)
+CREATE OR REPLACE FUNCTION store_email(
+    p_sender    VARCHAR(100),
+    p_recipient VARCHAR(100),
+    p_subject   VARCHAR(255),
+    p_body      TEXT
+) RETURNS INTEGER AS $$
+DECLARE
+    v_email_id INTEGER;
 BEGIN
     INSERT INTO emails (sender, recipient, subject, body)
-    VALUES (p_sender, p_recipient, p_subject, p_body);
-END$$
+    VALUES (p_sender, p_recipient, p_subject, p_body)
+    RETURNING id INTO v_email_id;
+    RETURN v_email_id;
+END;
+$$ LANGUAGE plpgsql;
 
 -- ── 3. Fetch emails for a user ────────────────────────
-CREATE PROCEDURE fetch_emails(
-    IN p_recipient VARCHAR(100)
-)
+CREATE OR REPLACE FUNCTION fetch_emails(p_recipient VARCHAR(100))
+RETURNS TABLE (
+    id INTEGER,
+    sender VARCHAR(100),
+    recipient VARCHAR(100),
+    subject VARCHAR(255),
+    sent_at TIMESTAMP,
+    is_read BOOLEAN,
+    folder VARCHAR(50)
+) AS $$
 BEGIN
-    SELECT id, sender, recipient, subject, sent_at, is_read, folder
-    FROM emails
-    WHERE recipient = p_recipient
-      AND is_deleted = FALSE
-    ORDER BY sent_at DESC;
-END$$
+    RETURN QUERY
+    SELECT e.id, e.sender, e.recipient, e.subject, e.sent_at, e.is_read, e.folder
+    FROM emails e
+    WHERE e.recipient = p_recipient
+      AND e.is_deleted = FALSE
+    ORDER BY e.sent_at DESC;
+END;
+$$ LANGUAGE plpgsql;
 
 -- ── 4. Delete email (soft delete) ────────────────────
-CREATE PROCEDURE delete_email(
-    IN p_email_id INT
-)
+CREATE OR REPLACE FUNCTION delete_email(p_email_id INTEGER)
+RETURNS VOID AS $$
 BEGIN
     UPDATE emails
     SET is_deleted = TRUE
     WHERE id = p_email_id;
-END$$
+END;
+$$ LANGUAGE plpgsql;
 
 -- ── 5. Update password ────────────────────────────────
-CREATE PROCEDURE update_password(
-    IN p_username     VARCHAR(50),
-    IN p_new_password VARCHAR(255)
-)
+CREATE OR REPLACE FUNCTION update_password(
+    p_username     VARCHAR(50),
+    p_new_password VARCHAR(255)
+) RETURNS VOID AS $$
 BEGIN
     UPDATE users
     SET password_hash = p_new_password
     WHERE username = p_username;
-END$$
+END;
+$$ LANGUAGE plpgsql;
 
--- ── 6. Mark email as read (IMAP \Seen flag) ───────────
-CREATE PROCEDURE mark_as_read(
-    IN p_email_id INT,
-    IN p_is_read  BOOLEAN
-)
+-- ── 6. Mark email as read ────────────────────────────
+CREATE OR REPLACE FUNCTION mark_as_read(
+    p_email_id INTEGER,
+    p_is_read  BOOLEAN
+) RETURNS VOID AS $$
 BEGIN
     UPDATE emails
     SET is_read = p_is_read
     WHERE id = p_email_id;
-END$$
+END;
+$$ LANGUAGE plpgsql;
 
-DELIMITER ;
+-- ── 7. Create user ───────────────────────────────────
+CREATE OR REPLACE FUNCTION create_user(
+    p_username      VARCHAR(50),
+    p_password_hash VARCHAR(255),
+    p_email         VARCHAR(100)
+) RETURNS BOOLEAN AS $$
+BEGIN
+    INSERT INTO users (username, password_hash, email)
+    VALUES (p_username, p_password_hash, p_email);
+    RETURN TRUE;
+EXCEPTION
+    WHEN unique_violation THEN
+        RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ── 8. Check if user exists ─────────────────────────
+CREATE OR REPLACE FUNCTION user_exists(p_username VARCHAR(50))
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (SELECT 1 FROM users WHERE username = p_username);
+END;
+$$ LANGUAGE plpgsql;
+
+-- ── 9. Get user by username ─────────────────────────
+CREATE OR REPLACE FUNCTION get_user(p_username VARCHAR(50))
+RETURNS TABLE (
+    id INTEGER,
+    username VARCHAR(50),
+    password_hash VARCHAR(255),
+    email VARCHAR(100),
+    created_at TIMESTAMP,
+    active BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT u.id, u.username, u.password_hash, u.email, u.created_at, u.active
+    FROM users u
+    WHERE u.username = p_username;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ── 10. List all users ────────────────────────────────
+CREATE OR REPLACE FUNCTION list_users()
+RETURNS TABLE (
+    id INTEGER,
+    username VARCHAR(50),
+    email VARCHAR(100),
+    active BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT u.id, u.username, u.email, u.active
+    FROM users u
+    ORDER BY u.username;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ── 11. Set user active/inactive ────────────────────
+CREATE OR REPLACE FUNCTION set_user_active(
+    p_username VARCHAR(50),
+    p_active BOOLEAN
+) RETURNS VOID AS $$
+BEGIN
+    UPDATE users
+    SET active = p_active
+    WHERE username = p_username;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ── 12. Delete user permanently ───────────────────────
+CREATE OR REPLACE FUNCTION delete_user_permanent(p_username VARCHAR(50))
+RETURNS VOID AS $$
+BEGIN
+    DELETE FROM users WHERE username = p_username;
+END;
+$$ LANGUAGE plpgsql;

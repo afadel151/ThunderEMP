@@ -1,9 +1,10 @@
-package org.emp.auth;
+package org.emp.common;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import org.emp.common.UserDTO;
 /**
  * RMI Remote Interface — Authentication Service (Étape 4).
  *

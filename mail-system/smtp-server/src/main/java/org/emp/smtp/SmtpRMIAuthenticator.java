@@ -1,6 +1,6 @@
 package org.emp.smtp;
 
-import org.emp.auth.RMIAuthenticator;
+import org.emp.common.RMIAuthenticator;
 
 /**
  * Bridges the RMI auth server to the SMTP SmtpAuthenticator interface (Étape 4).

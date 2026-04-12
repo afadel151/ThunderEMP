@@ -1,7 +1,7 @@
 package org.emp.auth.gui;
 
-import org.emp.auth.AuthService;
 import org.emp.auth.UserDTO;
+import org.emp.common.AuthService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -276,9 +276,9 @@ public class AuthAdminGui extends JFrame {
     private void refreshTable() {
         if (stub == null) return;
         try {
-            List<UserDTO> users = stub.listUsers();
+            List<org.emp.common.UserDTO> users = stub.listUsers();
             tableModel.setRowCount(0);
-            for (UserDTO u : users)
+            for (org.emp.common.UserDTO u : users)
                 tableModel.addRow(new Object[]{u.getUsername(), u.getEmail(),
                         u.isActive() ? "active" : "disabled"});
             setStatus(users.size() + " user(s) loaded.");

@@ -23,11 +23,12 @@
         </dependency>
         <dependency>
             <groupId>org.emp</groupId>
-            <artifactId>auth-server</artifactId>
+            <artifactId>auth</artifactId>
         </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+       <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.10</version>
         </dependency>
     </dependencies>
 
