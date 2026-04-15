@@ -9,11 +9,7 @@ import java.util.logging.Logger;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-/**
- * Shared database connection utility with connection pooling.
- * Used by SMTP, POP3, IMAP, and Auth servers (Étape 5).
- * PostgreSQL compatible.
- */
+
 public class DBConnection {
 
     private static final Logger log = Logger.getLogger(DBConnection.class.getName());

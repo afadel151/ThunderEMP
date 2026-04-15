@@ -11,10 +11,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-/**
- * PostgreSQL-backed authentication service implementation.
- * Replaces JSON file storage with database via UserRepository.
- */
+
 public class AuthServiceImpl extends UnicastRemoteObject implements AuthService {
     private static final Logger log = Logger.getLogger(AuthServiceImpl.class.getName());
     private final UserRepository userRepo;

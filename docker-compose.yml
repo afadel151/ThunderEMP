@@ -1,2 +1,24 @@
 services:
+  postgres:
+    image: postgres:15
+    container_name: mail-postgres
+    environment:
+      POSTGRES_DB: mailsys
+      POSTGRES_USER: mailuser
+      POSTGRES_PASSWORD: mailpass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - mail-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  mail-network:
+    driver: bridge
   

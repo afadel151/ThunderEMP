@@ -40,12 +40,47 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>pop3.POP3Server</mainClass>
+                            <mainClass>org.emp.pop3.Pop3Server</mainClass>
                         </manifest>
                     </archive>
                     <finalName>pop3-server</finalName>
                 </configuration>
             </plugin>
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+
+                        <!-- Main class -->
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>org.emp.pop3.Pop3Server</mainClass>
+                            </transformer>
+                        </transformers>
+
+                        <!-- Avoid signature conflicts -->
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
         </plugins>
     </build>
 

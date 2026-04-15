@@ -147,7 +147,7 @@ public class UserRepository {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 users.add(new UserDTO(
-                    rs.getInt("id"),
+                    rs.getInt("user_id"),
                     rs.getString("username"),
                     rs.getString("email"),
                     rs.getBoolean("active")
